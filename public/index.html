@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Email Launcher</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; padding: 20px; display: flex; justify-content: center; }
+    .card { background: #fff; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; color: #333; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, textarea, button { width: 100%; margin-top: 5px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+    button { background: #2563eb; color: white; border: none; font-size: 16px; margin-top: 15px; cursor: pointer; font-weight: bold; }
+    button:disabled { background: #93c5fd; cursor: not-allowed; }
+    #status { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Bulk Email Launcher</h2>
+
+  <label for="emails">Email Addresses (Comma or Newline separated):</label>
+  <textarea id="emails" rows="5" placeholder="user1@example.com, user2@example.com&#10;user3@example.com"></textarea>
+
+  <label for="subject">Subject:</label>
+  <input type="text" id="subject" placeholder="Enter email subject">
+
+  <label for="body">Message Body:</label>
+  <textarea id="body" rows="6" placeholder="Enter message here..."></textarea>
+
+  <button id="sendBtn" onclick="sendEmails()">Send Emails</button>
+
+  <div id="status"></div>
+</div>
+
+<script>
+  async function sendEmails() {
+    const rawEmails = document.getElementById('emails').value;
+    const subject = document.getElementById('subject').value;
+    const body = document.getElementById('body').value;
+    const statusDiv = document.getElementById('status');
+    const sendBtn = document.getElementById('sendBtn');
+
+    const emails = rawEmails.split(/[\n,]+/).map(e => e.trim()).filter(e => e);
+
+    if (emails.length === 0 || !subject || !body) {
+      alert('All fields are required!');
+      return;
+    }
+
+    sendBtn.disabled = true;
+    sendBtn.innerText = 'Sending in background...';
+    statusDiv.style.display = 'block';
+    statusDiv.style.background = '#e0f2fe';
+    statusDiv.style.color = '#0369a1';
+    statusDiv.innerText = `Processing ${emails.length} emails. Please wait...`;
+
+    try {
+      const res = await fetch('/api/send-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emails, subject, body })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        statusDiv.style.background = '#dcfce7';
+        statusDiv.style.color = '#15803d';
+        statusDiv.innerText = `Complete! Sent: ${data.sentCount}, Failed: ${data.failedCount}`;
+      } else {
+        throw new Error(data.message || 'Sending failed');
+      }
+    } catch (err) {
+      statusDiv.style.background = '#fee2e2';
+      statusDiv.style.color = '#b91c1c';
+      statusDiv.innerText = `Error: ${err.message}`;
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.innerText = 'Send Emails';
+    }
+  }
+</script>
+
+</body>
+</html>
