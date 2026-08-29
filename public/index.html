@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bulk Email Launcher</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f8; padding: 20px; display: flex; justify-content: center; }
-    .card { background: #fff; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; color: #333; }
-    label { font-weight: bold; margin-top: 10px; display: block; }
-    input, textarea, button { width: 100%; margin-top: 5px; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
-    button { background: #2563eb; color: white; border: none; font-size: 16px; margin-top: 15px; cursor: pointer; font-weight: bold; }
-    button:disabled { background: #93c5fd; cursor: not-allowed; }
-    #status { margin-top: 15px; padding: 10px; border-radius: 5px; display: none; }
+    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; display: flex; justify-content: center; }
+    .card { background: #ffffff; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; color: #1e293b; }
+    .section-title { font-size: 14px; font-weight: bold; color: #64748b; margin-top: 15px; text-transform: uppercase; }
+    label { font-weight: 600; margin-top: 10px; display: block; font-size: 14px; color: #334155; }
+    input, textarea, button { width: 100%; margin-top: 5px; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; }
+    input:focus, textarea:focus { border-color: #2563eb; outline: none; }
+    button { background: #2563eb; color: white; border: none; font-size: 16px; margin-top: 20px; cursor: pointer; font-weight: bold; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    #status { margin-top: 15px; padding: 12px; border-radius: 6px; display: none; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -20,47 +22,58 @@
 <div class="card">
   <h2>Bulk Email Launcher</h2>
 
-  <label for="emails">Email Addresses (Comma or Newline separated):</label>
-  <textarea id="emails" rows="5" placeholder="user1@example.com, user2@example.com&#10;user3@example.com"></textarea>
+  <div class="section-title">1. Your Sender Details</div>
+  <label for="senderEmail">Your Gmail ID:</label>
+  <input type="email" id="senderEmail" placeholder="your-email@gmail.com">
+
+  <label for="appPassword">16-Digit Google App Password:</label>
+  <input type="password" id="appPassword" placeholder="xxxx xxxx xxxx xxxx">
+
+  <div class="section-title">2. Campaign Details</div>
+  <label for="emails">Receiver Email List (Comma or Newline separated):</label>
+  <textarea id="emails" rows="4" placeholder="client1@gmail.com, client2@gmail.com&#10;client3@gmail.com"></textarea>
 
   <label for="subject">Subject:</label>
   <input type="text" id="subject" placeholder="Enter email subject">
 
   <label for="body">Message Body:</label>
-  <textarea id="body" rows="6" placeholder="Enter message here..."></textarea>
+  <textarea id="body" rows="5" placeholder="Type your message here..."></textarea>
 
-  <button id="sendBtn" onclick="sendEmails()">Send Emails</button>
+  <button id="sendBtn" onclick="sendEmails()">Send Bulk Emails</button>
 
   <div id="status"></div>
 </div>
 
 <script>
   async function sendEmails() {
+    const senderEmail = document.getElementById('senderEmail').value.trim();
+    const appPassword = document.getElementById('appPassword').value.trim();
     const rawEmails = document.getElementById('emails').value;
-    const subject = document.getElementById('subject').value;
-    const body = document.getElementById('body').value;
+    const subject = document.getElementById('subject').value.trim();
+    const body = document.getElementById('body').value.trim();
+    
     const statusDiv = document.getElementById('status');
     const sendBtn = document.getElementById('sendBtn');
 
     const emails = rawEmails.split(/[\n,]+/).map(e => e.trim()).filter(e => e);
 
-    if (emails.length === 0 || !subject || !body) {
-      alert('All fields are required!');
+    if (!senderEmail || !appPassword || emails.length === 0 || !subject || !body) {
+      alert('Please fill all fields: Gmail ID, App Password, Receivers, Subject, and Body.');
       return;
     }
 
     sendBtn.disabled = true;
-    sendBtn.innerText = 'Sending in background...';
+    sendBtn.innerText = 'Sending in progress...';
     statusDiv.style.display = 'block';
     statusDiv.style.background = '#e0f2fe';
     statusDiv.style.color = '#0369a1';
-    statusDiv.innerText = `Processing ${emails.length} emails. Please wait...`;
+    statusDiv.innerText = `Starting to send ${emails.length} emails. Please wait...`;
 
     try {
       const res = await fetch('/api/send-bulk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emails, subject, body })
+        body: JSON.stringify({ senderEmail, appPassword, emails, subject, body })
       });
 
       const data = await res.json();
@@ -68,9 +81,9 @@
       if (data.success) {
         statusDiv.style.background = '#dcfce7';
         statusDiv.style.color = '#15803d';
-        statusDiv.innerText = `Complete! Sent: ${data.sentCount}, Failed: ${data.failedCount}`;
+        statusDiv.innerText = `Finished! Success: ${data.sentCount} | Failed: ${data.failedCount}`;
       } else {
-        throw new Error(data.message || 'Sending failed');
+        throw new Error(data.message || 'Error occurred while sending.');
       }
     } catch (err) {
       statusDiv.style.background = '#fee2e2';
@@ -78,7 +91,7 @@
       statusDiv.innerText = `Error: ${err.message}`;
     } finally {
       sendBtn.disabled = false;
-      sendBtn.innerText = 'Send Emails';
+      sendBtn.innerText = 'Send Bulk Emails';
     }
   }
 </script>
