@@ -2,7 +2,6 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -11,47 +10,46 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Delay utility to protect Gmail account from getting blocked
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 app.post('/api/send-bulk', async (req, res) => {
-  const { emails, subject, body } = req.body;
+  const { senderEmail, appPassword, emails, subject, body } = req.body;
 
-  if (!emails || !Array.isArray(emails) || emails.length === 0 || !subject || !body) {
-    return res.status(400).json({ success: false, message: 'Invalid payload. All fields required.' });
+  if (!senderEmail || !appPassword || !emails || !Array.isArray(emails) || emails.length === 0 || !subject || !body) {
+    return res.status(400).json({ success: false, message: 'All fields including Gmail ID & App Password are required.' });
   }
 
+  // Frontend se bheje gaye Gmail credentials use ho rahe hain
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASS
+      user: senderEmail.trim(),
+      pass: appPassword.trim().replace(/\s+/g, '') // Removes spaces from app password
     }
   });
 
   const results = { successful: [], failed: [] };
 
-  // Run in background and respond immediately or wait based on queue length
   for (const email of emails) {
     const cleanEmail = email.trim();
     if (!cleanEmail) continue;
 
     try {
       await transporter.sendMail({
-        from: `"Notification" <${process.env.GMAIL_USER}>`,
+        from: `"Sender" <${senderEmail.trim()}>`,
         to: cleanEmail,
         subject: subject,
         html: `<p>${body.replace(/\n/g, '<br/>')}</p>`
       });
 
       results.successful.push(cleanEmail);
-      console.log(`Sent to: ${cleanEmail}`);
+      console.log(`Sent successfully to: ${cleanEmail}`);
     } catch (err) {
       console.error(`Failed for ${cleanEmail}:`, err.message);
       results.failed.push({ email: cleanEmail, error: err.message });
     }
 
-    // 1.5 second gap between each email
+    // 1.5 second safety delay
     await delay(1500);
   }
 
