@@ -3,95 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bulk Email Launcher</title>
+  <title>Secure Mail Console</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f2f5; padding: 20px; display: flex; justify-content: center; }
-    .card { background: #ffffff; padding: 25px; border-radius: 8px; max-width: 600px; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h2 { margin-top: 0; color: #1e293b; }
-    .section-title { font-size: 14px; font-weight: bold; color: #64748b; margin-top: 15px; text-transform: uppercase; }
-    label { font-weight: 600; margin-top: 10px; display: block; font-size: 14px; color: #334155; }
-    input, textarea, button { width: 100%; margin-top: 5px; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; box-sizing: border-box; }
-    input:focus, textarea:focus { border-color: #2563eb; outline: none; }
-    button { background: #2563eb; color: white; border: none; font-size: 16px; margin-top: 20px; cursor: pointer; font-weight: bold; }
-    button:disabled { background: #94a3b8; cursor: not-allowed; }
-    #status { margin-top: 15px; padding: 12px; border-radius: 6px; display: none; font-size: 14px; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f1f5f9; margin: 0; padding: 30px; display: flex; justify-content: center; }
+    .container { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; max-width: 1200px; width: 100%; }
+    .card { background: #ffffff; border-radius: 14px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+    
+    .card-title { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    
+    label { font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 6px; }
+    input, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #1e293b; background: #fff; }
+    input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+    
+    .recipient-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .badge-count { background: #eff6ff; color: #2563eb; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .subtext { font-size: 12px; color: #94a3b8; margin-top: -10px; margin-bottom: 10px; }
+
+    /* Progress Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 15px; margin-bottom: 15px; }
+    .stat-box { border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-label { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.5px; }
+    .stat-val { font-size: 26px; font-weight: 700; margin-top: 4px; }
+    .val-total { color: #2563eb; }
+    .val-sent { color: #16a34a; }
+    .val-failed { color: #dc2626; }
+    .val-remaining { color: #d97706; }
+
+    .status-indicator { text-align: center; font-size: 13px; font-weight: 600; color: #475569; margin: 15px 0 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-send { width: 100%; background: #059669; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
+    .btn-send:hover { background: #047857; }
+    .btn-send:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    .spam-box { margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 14px; font-size: 12px; color: #64748b; }
+    .badge-success { display: inline-flex; align-items: center; gap: 5px; color: #16a34a; font-weight: 600; margin-top: 6px; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <h2>Bulk Email Launcher</h2>
+<div class="container">
+  
+  <!-- Left Column: Compose Message -->
+  <div class="card">
+    <div class="card-title">📝 Compose Message</div>
 
-  <div class="section-title">1. Your Sender Details</div>
-  <label for="senderEmail">Your Gmail ID:</label>
-  <input type="email" id="senderEmail" placeholder="your-email@gmail.com">
+    <div class="grid-2">
+      <div>
+        <label>Sender Name</label>
+        <input type="text" id="senderName" placeholder="E.g., John Doe">
+      </div>
+      <div>
+        <label>Your Gmail</label>
+        <input type="email" id="senderEmail" placeholder="you@gmail.com">
+      </div>
+    </div>
 
-  <label for="appPassword">16-Digit Google App Password:</label>
-  <input type="password" id="appPassword" placeholder="xxxx xxxx xxxx xxxx">
+    <div class="grid-2">
+      <div>
+        <label>App Password</label>
+        <input type="password" id="appPassword" placeholder="16-char app password">
+      </div>
+      <div>
+        <label>Email Subject</label>
+        <input type="text" id="subject" placeholder="Enter subject line...">
+      </div>
+    </div>
 
-  <div class="section-title">2. Campaign Details</div>
-  <label for="emails">Receiver Email List (Comma or Newline separated):</label>
-  <textarea id="emails" rows="4" placeholder="client1@gmail.com, client2@gmail.com&#10;client3@gmail.com"></textarea>
+    <label style="margin-top: 6px;">Message Body (Plain Text / HTML)</label>
+    <textarea id="body" rows="12" placeholder="Write your email here... Spintax supported: {Hi|Hello} {name}"></textarea>
 
-  <label for="subject">Subject:</label>
-  <input type="text" id="subject" placeholder="Enter email subject">
+    <div class="spam-box">
+      <strong>🛡️ Spam Protection Active</strong><br>
+      <div class="badge-success">✔ 6 Mails Per Batch Mode Enabled</div>
+    </div>
+  </div>
 
-  <label for="body">Message Body:</label>
-  <textarea id="body" rows="5" placeholder="Type your message here..."></textarea>
+  <!-- Right Column: Recipients & Progress -->
+  <div style="display: flex; flex-direction: column; gap: 24px;">
+    
+    <!-- Recipients Box -->
+    <div class="card">
+      <div class="recipient-header">
+        <div class="card-title" style="margin-bottom:0;">👥 Recipients</div>
+        <span class="badge-count" id="foundBadge">0 found</span>
+      </div>
+      <div class="subtext">Paste emails (comma separated, new lines, or Excel copy)</div>
+      <textarea id="recipients" rows="6" placeholder="recipient1@example.com&#10;recipient2@example.com" oninput="updateEmailCount()"></textarea>
+    </div>
 
-  <button id="sendBtn" onclick="sendEmails()">Send Bulk Emails</button>
+    <!-- Progress Monitor Box -->
+    <div class="card">
+      <div class="card-title">📊 Progress Monitor</div>
+      
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">TOTAL</div>
+          <div class="stat-val val-total" id="statTotal">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">SENT</div>
+          <div class="stat-val val-sent" id="statSent">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">FAILED</div>
+          <div class="stat-val val-failed" id="statFailed">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">REMAINING</div>
+          <div class="stat-val val-remaining" id="statRemaining">0</div>
+        </div>
+      </div>
 
-  <div id="status"></div>
+      <div class="status-indicator" id="statusText">⚪ Ready to send</div>
+      <button class="btn-send" id="sendBtn" onclick="startSending()">🚀 Send All (6 at once)</button>
+    </div>
+
+  </div>
+
 </div>
 
 <script>
-  async function sendEmails() {
-    const senderEmail = document.getElementById('senderEmail').value.trim();
-    const appPassword = document.getElementById('appPassword').value.trim();
-    const rawEmails = document.getElementById('emails').value;
-    const subject = document.getElementById('subject').value.trim();
-    const body = document.getElementById('body').value.trim();
-    
-    const statusDiv = document.getElementById('status');
-    const sendBtn = document.getElementById('sendBtn');
+  function getCleanEmailList() {
+    const raw = document.getElementById('recipients').value;
+    return raw.split(/[\n,]+/).map(e => e.trim()).filter(e => e.includes('@'));
+  }
 
-    const emails = rawEmails.split(/[\n,]+/).map(e => e.trim()).filter(e => e);
+  function updateEmailCount() {
+    const list = getCleanEmailList();
+    document.getElementById('foundBadge').innerText = `${list.length} found`;
+    document.getElementById('statTotal').innerText = list.length;
+    document.getElementById('statRemaining').innerText = list.length;
+  }
+
+  async function startSending() {
+    const senderName = document.getElementById('senderName').value;
+    const senderEmail = document.getElementById('senderEmail').value;
+    const appPassword = document.getElementById('appPassword').value;
+    const subject = document.getElementById('subject').value;
+    const body = document.getElementById('body').value;
+    const emails = getCleanEmailList();
 
     if (!senderEmail || !appPassword || emails.length === 0 || !subject || !body) {
-      alert('Please fill all fields: Gmail ID, App Password, Receivers, Subject, and Body.');
+      alert('Please fill Sender Details, Subject, Message, and at least 1 Recipient!');
       return;
     }
 
+    const sendBtn = document.getElementById('sendBtn');
+    const statusText = document.getElementById('statusText');
+    
     sendBtn.disabled = true;
-    sendBtn.innerText = 'Sending in progress...';
-    statusDiv.style.display = 'block';
-    statusDiv.style.background = '#e0f2fe';
-    statusDiv.style.color = '#0369a1';
-    statusDiv.innerText = `Starting to send ${emails.length} emails. Please wait...`;
+    statusText.innerText = '⏳ Sending in 6-email batches...';
 
     try {
-      const res = await fetch('/api/send-bulk', {
+      const res = await fetch('/api/send-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ senderEmail, appPassword, emails, subject, body })
+        body: JSON.stringify({ senderName, senderEmail, appPassword, emails, subject, body })
       });
 
       const data = await res.json();
 
       if (data.success) {
-        statusDiv.style.background = '#dcfce7';
-        statusDiv.style.color = '#15803d';
-        statusDiv.innerText = `Finished! Success: ${data.sentCount} | Failed: ${data.failedCount}`;
+        document.getElementById('statSent').innerText = data.sentCount;
+        document.getElementById('statFailed').innerText = data.failedCount;
+        document.getElementById('statRemaining').innerText = '0';
+        statusText.innerText = '✅ Completed Successfully!';
       } else {
-        throw new Error(data.message || 'Error occurred while sending.');
+        alert(data.message || 'Error occurred');
+        statusText.innerText = '❌ Failed';
       }
     } catch (err) {
-      statusDiv.style.background = '#fee2e2';
-      statusDiv.style.color = '#b91c1c';
-      statusDiv.innerText = `Error: ${err.message}`;
+      alert('Request error: ' + err.message);
+      statusText.innerText = '❌ Error';
     } finally {
       sendBtn.disabled = false;
-      sendBtn.innerText = 'Send Bulk Emails';
     }
   }
 </script>
