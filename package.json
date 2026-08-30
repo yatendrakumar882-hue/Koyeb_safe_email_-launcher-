@@ -1,7 +1,7 @@
 {
-  "name": "bulk-email-launcher",
+  "name": "secure-mail-console",
   "version": "1.0.0",
-  "description": "Bulk email sender with manual credentials",
+  "description": "Bulk Email Console with Batch Sending",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
