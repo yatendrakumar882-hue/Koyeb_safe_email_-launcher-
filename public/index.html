@@ -5,97 +5,309 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Secure Mail Console</title>
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f1f5f9; margin: 0; padding: 30px; display: flex; justify-content: center; }
-    .container { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; max-width: 1200px; width: 100%; }
-    .card { background: #ffffff; border-radius: 14px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
-    
-    .card-title { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    
-    label { font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 6px; }
-    input, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #1e293b; background: #fff; }
-    input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
-    
-    .recipient-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .badge-count { background: #eff6ff; color: #2563eb; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .subtext { font-size: 12px; color: #94a3b8; margin-top: -10px; margin-bottom: 10px; }
-
-    /* Progress Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 15px; margin-bottom: 15px; }
-    .stat-box { border: 1px solid #f1f5f9; background: #f8fafc; border-radius: 10px; padding: 14px; text-align: center; }
-    .stat-label { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.5px; }
-    .stat-val { font-size: 26px; font-weight: 700; margin-top: 4px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+    .wrapper {
+      max-width: 1100px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .card-title svg {
+      width: 18px;
+      height: 18px;
+    }
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #334155;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input:focus, textarea:focus {
+      border-color: #3b82f6;
+    }
+    input::placeholder, textarea::placeholder {
+      color: #94a3b8;
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper input {
+      padding-right: 36px;
+    }
+    .eye-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+    }
+    .recipients-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .badge-found {
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .sub-hint {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-box {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      background: #fff;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .stat-val {
+      font-size: 28px;
+      font-weight: 700;
+    }
     .val-total { color: #2563eb; }
-    .val-sent { color: #16a34a; }
+    .val-sent { color: #059669; }
     .val-failed { color: #dc2626; }
-    .val-remaining { color: #d97706; }
+    .val-rem { color: #d97706; }
 
-    .status-indicator { text-align: center; font-size: 13px; font-weight: 600; color: #475569; margin: 15px 0 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-send { width: 100%; background: #059669; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
-    .btn-send:hover { background: #047857; }
-    .btn-send:disabled { background: #94a3b8; cursor: not-allowed; }
-
-    .spam-box { margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 14px; font-size: 12px; color: #64748b; }
-    .badge-success { display: inline-flex; align-items: center; gap: 5px; color: #16a34a; font-weight: 600; margin-top: 6px; }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 14px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #0f172a;
+      border-radius: 50%;
+    }
+    .btn-send {
+      width: 100%;
+      background: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-send:hover {
+      background: #047857;
+    }
+    .btn-send:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    .spam-footer {
+      margin-top: 20px;
+      padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .spam-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .captcha-mock {
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      border-radius: 4px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 220px;
+      font-size: 12px;
+    }
+    .captcha-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #059669;
+      font-weight: 600;
+    }
+    .captcha-logo {
+      font-size: 9px;
+      color: #ea580c;
+      text-align: right;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .captcha-sub {
+      font-size: 7px;
+      color: #6b7280;
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="wrapper">
   
-  <!-- Left Column: Compose Message -->
+  <!-- Left Box: Compose Message -->
   <div class="card">
-    <div class="card-title">📝 Compose Message</div>
+    <div class="card-title">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+      Compose Message
+    </div>
 
-    <div class="grid-2">
-      <div>
+    <div class="form-grid-2">
+      <div class="input-group" style="margin-bottom:0;">
         <label>Sender Name</label>
         <input type="text" id="senderName" placeholder="E.g., John Doe">
       </div>
-      <div>
+      <div class="input-group" style="margin-bottom:0;">
         <label>Your Gmail</label>
         <input type="email" id="senderEmail" placeholder="you@gmail.com">
       </div>
     </div>
 
-    <div class="grid-2">
-      <div>
+    <div class="form-grid-2">
+      <div class="input-group" style="margin-bottom:0;">
         <label>App Password</label>
-        <input type="password" id="appPassword" placeholder="16-char app password">
+        <div class="password-wrapper">
+          <input type="password" id="appPassword" placeholder="16-char app password">
+          <button type="button" class="eye-btn" onclick="togglePass()">👁</button>
+        </div>
       </div>
-      <div>
+      <div class="input-group" style="margin-bottom:0;">
         <label>Email Subject</label>
         <input type="text" id="subject" placeholder="Enter subject line...">
       </div>
     </div>
 
-    <label style="margin-top: 6px;">Message Body (Plain Text / HTML)</label>
-    <textarea id="body" rows="12" placeholder="Write your email here... Spintax supported: {Hi|Hello} {name}"></textarea>
+    <div class="input-group" style="margin-top:16px;">
+      <label>Message Body (Plain Text / HTML)</label>
+      <textarea id="body" rows="11" placeholder="Write your email here... Spintax supported: {Hi|Hello} {name}"></textarea>
+    </div>
 
-    <div class="spam-box">
-      <strong>🛡️ Spam Protection Active</strong><br>
-      <div class="badge-success">✔ 6 Mails Per Batch Mode Enabled</div>
+    <div class="spam-footer">
+      <div class="spam-title">🛡️ Spam Protection</div>
+      <div class="captcha-mock">
+        <div class="captcha-status">✔ Success!</div>
+        <div class="captcha-logo">
+          CLOUDFLARE<br><span class="captcha-sub">Privacy • Help</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Right Column: Recipients & Progress -->
+  <!-- Right Box: Recipients & Progress -->
   <div style="display: flex; flex-direction: column; gap: 24px;">
     
-    <!-- Recipients Box -->
+    <!-- Recipients -->
     <div class="card">
-      <div class="recipient-header">
-        <div class="card-title" style="margin-bottom:0;">👥 Recipients</div>
-        <span class="badge-count" id="foundBadge">0 found</span>
+      <div class="recipients-header">
+        <div class="card-title" style="margin-bottom:0;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          Recipients
+        </div>
+        <span class="badge-found" id="foundBadge">0 found</span>
       </div>
-      <div class="subtext">Paste emails (comma separated, new lines, or Excel copy)</div>
-      <textarea id="recipients" rows="6" placeholder="recipient1@example.com&#10;recipient2@example.com" oninput="updateEmailCount()"></textarea>
+      <div class="sub-hint">Paste emails (comma separated, new lines, or Excel copy)</div>
+      <textarea id="recipients" rows="5" placeholder="recipient1@example.com&#10;recipient2@example.com" oninput="handleInput()"></textarea>
     </div>
 
-    <!-- Progress Monitor Box -->
+    <!-- Progress Monitor -->
     <div class="card">
-      <div class="card-title">📊 Progress Monitor</div>
-      
+      <div class="card-title">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path></svg>
+        Progress Monitor
+      </div>
+
       <div class="stats-grid">
         <div class="stat-box">
           <div class="stat-label">TOTAL</div>
@@ -111,12 +323,19 @@
         </div>
         <div class="stat-box">
           <div class="stat-label">REMAINING</div>
-          <div class="stat-val val-remaining" id="statRemaining">0</div>
+          <div class="stat-val val-rem" id="statRem">0</div>
         </div>
       </div>
 
-      <div class="status-indicator" id="statusText">⚪ Ready to send</div>
-      <button class="btn-send" id="sendBtn" onclick="startSending()">🚀 Send All (6 at once)</button>
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        <span id="statusLabel">Ready to send</span>
+      </div>
+
+      <button class="btn-send" id="sendBtn" onclick="sendBatchMails()">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        Send All
+      </button>
     </div>
 
   </div>
@@ -124,36 +343,41 @@
 </div>
 
 <script>
-  function getCleanEmailList() {
+  function togglePass() {
+    const p = document.getElementById('appPassword');
+    p.type = p.type === 'password' ? 'text' : 'password';
+  }
+
+  function getEmails() {
     const raw = document.getElementById('recipients').value;
     return raw.split(/[\n,]+/).map(e => e.trim()).filter(e => e.includes('@'));
   }
 
-  function updateEmailCount() {
-    const list = getCleanEmailList();
+  function handleInput() {
+    const list = getEmails();
     document.getElementById('foundBadge').innerText = `${list.length} found`;
     document.getElementById('statTotal').innerText = list.length;
-    document.getElementById('statRemaining').innerText = list.length;
+    document.getElementById('statRem').innerText = list.length;
   }
 
-  async function startSending() {
+  async function sendBatchMails() {
     const senderName = document.getElementById('senderName').value;
     const senderEmail = document.getElementById('senderEmail').value;
     const appPassword = document.getElementById('appPassword').value;
     const subject = document.getElementById('subject').value;
     const body = document.getElementById('body').value;
-    const emails = getCleanEmailList();
+    const emails = getEmails();
 
     if (!senderEmail || !appPassword || emails.length === 0 || !subject || !body) {
-      alert('Please fill Sender Details, Subject, Message, and at least 1 Recipient!');
+      alert('Please fill all details!');
       return;
     }
 
-    const sendBtn = document.getElementById('sendBtn');
-    const statusText = document.getElementById('statusText');
-    
-    sendBtn.disabled = true;
-    statusText.innerText = '⏳ Sending in 6-email batches...';
+    const btn = document.getElementById('sendBtn');
+    const statusLabel = document.getElementById('statusLabel');
+
+    btn.disabled = true;
+    statusLabel.innerText = 'Sending in 6-email batches...';
 
     try {
       const res = await fetch('/api/send-batch', {
@@ -163,21 +387,20 @@
       });
 
       const data = await res.json();
-
       if (data.success) {
         document.getElementById('statSent').innerText = data.sentCount;
         document.getElementById('statFailed').innerText = data.failedCount;
-        document.getElementById('statRemaining').innerText = '0';
-        statusText.innerText = '✅ Completed Successfully!';
+        document.getElementById('statRem').innerText = '0';
+        statusLabel.innerText = 'Completed!';
       } else {
         alert(data.message || 'Error occurred');
-        statusText.innerText = '❌ Failed';
+        statusLabel.innerText = 'Error';
       }
     } catch (err) {
-      alert('Request error: ' + err.message);
-      statusText.innerText = '❌ Error';
+      alert(err.message);
+      statusLabel.innerText = 'Failed';
     } finally {
-      sendBtn.disabled = false;
+      btn.disabled = false;
     }
   }
 </script>
